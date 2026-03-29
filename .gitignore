@@ -1,0 +1,11 @@
+bin/
+obj/
+publish/
+dist/
+*.user
+*.suo
+.vs/
+out/
+*.log
+.video.lock
+.video.status.json
