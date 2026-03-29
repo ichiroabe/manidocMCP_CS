@@ -7,9 +7,11 @@ namespace ManidocMCP;
 public static class VideoService
 {
     private static string FfmpegPath = @"C:\Project\ffmpeg-8.1\bin\ffmpeg.exe";
-    private static readonly string LockFile = Path.Combine(AppContext.BaseDirectory, ".video.lock");
-    private static readonly string StatusFile = Path.Combine(AppContext.BaseDirectory, ".video.status.json");
-    private static string OutDir = Path.Combine(AppContext.BaseDirectory, "out");
+    private static readonly string DataDir = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ManidocMCP");
+    private static readonly string LockFile = Path.Combine(DataDir, ".video.lock");
+    private static readonly string StatusFile = Path.Combine(DataDir, ".video.status.json");
+    private static string OutDir = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
 
     public static void Configure(string? ffmpegPath, string? outDir)
     {
@@ -19,6 +21,7 @@ public static class VideoService
 
     public static bool AcquireLock()
     {
+        Directory.CreateDirectory(DataDir);
         if (File.Exists(LockFile)) return false;
         File.WriteAllText(LockFile, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString());
         return true;
@@ -173,7 +176,7 @@ public static class VideoService
     public static async Task<string> GenerateAsync(string text, string? language = null)
     {
         var wavFile = Path.Combine(Path.GetTempPath(), $"manidoc_{Guid.NewGuid():N}.wav");
-        var debugLog = Path.Combine(AppContext.BaseDirectory, "ffmpeg_debug.log");
+        var debugLog = Path.Combine(DataDir, "ffmpeg_debug.log");
         var outputPath = BuildOutputPath();
 
         try

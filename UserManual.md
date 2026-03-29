@@ -55,7 +55,7 @@ Claude Desktop などのMCP対応AIクライアントと連携することで、
 動画生成機能（`generate_video_from_text`）を使うには **FFmpeg** が必要です。
 
 1. 公式サイトからダウンロード: [https://ffmpeg.org/download.html](https://ffmpeg.org/download.html)
-2. Windows 向けビルドを解凍し、`C:\Tools\ffmpeg\` などに配置
+2. Windows 向けビルドを解凍し、`C:\Tools\ffmpeg` などに配置
 3. `ffmpeg.exe` のフルパスを `appsettings.json` の `Video:FfmpegPath` に設定
 
 > FFmpeg は GPL ライセンスで配布されています。ライセンスの都合により本サーバーには同梱していません。
@@ -119,6 +119,66 @@ Manidocサーバーのステータスを確認して
 
 ---
 
+### Gemini CLI での設定
+
+Claude Desktop 以外に、**Gemini CLI**（バージョン 0.35.3 以降）でも利用できます。
+
+#### 1. 作業ディレクトリの準備
+
+```powershell
+cd C:\Users\yourname\Documents
+mkdir GeminiWorkspace
+cd GeminiWorkspace
+```
+
+> **重要:** `Program Files` など書き込み制限のあるフォルダは避けてください。
+
+#### 2. MCP設定ファイルの作成
+
+```powershell
+mkdir .gemini
+@"
+{
+  "mcpServers": {
+    "manidoc-cs": {
+      "command": "C:\\Program Files\\ManidocMCP\\ManidocMCP.exe",
+      "env": {
+        "MANIDOC_WORKSPACE": "C:\\Users\\yourname\\Documents\\ManidocData"
+      }
+    }
+  }
+}
+"@ | Out-File -FilePath .\.gemini\settings.json -Encoding utf8
+```
+
+> **注意:** 設定ファイルは `mcp.json` ではなく `.gemini\settings.json` を使います。
+
+#### 3. Gemini CLI の起動と信頼設定
+
+```powershell
+gemini
+```
+
+初回起動時に「このフォルダーを信頼しますか？」と表示された場合は **1. Trust folder** を選択。起動後に untrusted 警告が出た場合は以下を実行：
+
+```
+/permissions trust
+```
+
+#### 4. ツール使用の許可
+
+MCPツールを初めて使う際に確認ダイアログが表示されます。**3. Allow all server tools for this session** を選択するとセッション中は全ツールが許可されます。
+
+#### トラブルシューティング
+
+| 症状 | 対処 |
+| --- | --- |
+| MCPサーバーが認識されない | `gemini mcp list` で設定を確認 |
+| 権限エラー | 書き込み権限のあるフォルダで起動する |
+| 環境変数が効かない | `settings.json` の `env` セクションを確認 |
+
+---
+
 ### appsettings.json の設定
 
 インストール先フォルダの `appsettings.json` で動作を調整できます。
@@ -135,9 +195,11 @@ Manidocサーバーのステータスを確認して
 | 設定項目 | 説明 | デフォルト |
 | --- | --- | --- |
 | `Video:FfmpegPath` | `ffmpeg.exe` のフルパス | `C:\Tools\ffmpeg\bin\ffmpeg.exe` |
-| `Video:OutDir` | 生成動画の出力先フォルダ | `ManidocMCP.exe` と同じフォルダの `out\` |
+| `Video:OutDir` | 生成動画の出力先フォルダ | `%LOCALAPPDATA%\ManidocMCP\out` |
 
-`OutDir` を空欄にした場合、`ManidocMCP.exe` と同じフォルダ内に `out\` フォルダが自動作成されそこに保存されます。
+---
+
+`OutDir` を空欄にした場合、`%USERPROFILE%\Videos`（例: `C:\Users\yourname\Videos`）に自動保存されます。ロックファイル・ステータスファイル・デバッグログは `%LOCALAPPDATA%\ManidocMCP` に作成されます。
 
 ---
 
@@ -177,7 +239,7 @@ Manidocサーバーのステータスを確認して
 | 仕様項目 | 内容 |
 | --- | --- |
 | ファイル名 | `robot_sprite.png`（固定） |
-| 配置場所 | `ManidocMCP.exe` と同じフォルダの `Assets\` フォルダ内 |
+| 配置場所 | `ManidocMCP.exe` と同じフォルダの `Assets` フォルダ内 |
 | フォーマット | PNG |
 | 構成 | 3列 × 3行 = 9フレームのスプライトシート |
 | 1フレームサイズ | 459 × 256 px |
@@ -282,7 +344,7 @@ By integrating with MCP-compatible AI clients such as Claude Desktop, you can us
 The video generation feature (`generate_video_from_text`) requires **FFmpeg**.
 
 1. Download from the official site: [https://ffmpeg.org/download.html](https://ffmpeg.org/download.html)
-2. Extract the Windows build and place it in a folder such as `C:\Tools\ffmpeg\`
+2. Extract the Windows build and place it in a folder such as `C:\Tools\ffmpeg`
 3. Set the full path to `ffmpeg.exe` in `appsettings.json` under `Video:FfmpegPath`
 
 > FFmpeg is distributed under the GPL license. It is not bundled with this server due to licensing requirements.
@@ -346,6 +408,66 @@ If successful, the workspace path and number of projects will be returned.
 
 ---
 
+### Gemini CLI Configuration
+
+In addition to Claude Desktop, you can use **Gemini CLI** (version 0.35.3 or later).
+
+#### 1. Prepare a Working Directory
+
+```powershell
+cd C:\Users\yourname\Documents
+mkdir GeminiWorkspace
+cd GeminiWorkspace
+```
+
+> **Important:** Avoid folders with write restrictions such as `Program Files`.
+
+#### 2. Create the MCP Configuration File
+
+```powershell
+mkdir .gemini
+@"
+{
+  "mcpServers": {
+    "manidoc-cs": {
+      "command": "C:\\Program Files\\ManidocMCP\\ManidocMCP.exe",
+      "env": {
+        "MANIDOC_WORKSPACE": "C:\\Users\\yourname\\Documents\\ManidocData"
+      }
+    }
+  }
+}
+"@ | Out-File -FilePath .\.gemini\settings.json -Encoding utf8
+```
+
+> **Note:** Use `.gemini\settings.json`, not `mcp.json`.
+
+#### 3. Launch Gemini CLI and Trust the Folder
+
+```powershell
+gemini
+```
+
+If prompted "Do you trust this folder?", select **1. Trust folder**. If an untrusted warning appears after launch, run:
+
+```
+/permissions trust
+```
+
+#### 4. Allow Tool Execution
+
+When using an MCP tool for the first time, a confirmation dialog appears. Select **3. Allow all server tools for this session** to allow all tools for the session.
+
+#### Troubleshooting
+
+| Symptom | Solution |
+| --- | --- |
+| MCP server not recognized | Check configuration with `gemini mcp list` |
+| Permission error | Launch from a folder with write access |
+| Environment variable not working | Check the `env` section in `settings.json` |
+
+---
+
 ### appsettings.json Configuration
 
 You can adjust behavior via `appsettings.json` in the install folder.
@@ -362,9 +484,11 @@ You can adjust behavior via `appsettings.json` in the install folder.
 | Setting | Description | Default |
 | --- | --- | --- |
 | `Video:FfmpegPath` | Full path to `ffmpeg.exe` | `C:\Tools\ffmpeg\bin\ffmpeg.exe` |
-| `Video:OutDir` | Output folder for generated videos | `out\` folder next to `ManidocMCP.exe` |
+| `Video:OutDir` | Output folder for generated videos | `%LOCALAPPDATA%\ManidocMCP\out` |
 
-If `OutDir` is left empty, an `out\` subfolder will be created automatically next to `ManidocMCP.exe`.
+---
+
+If `OutDir` is left empty, videos are saved to `%USERPROFILE%\Videos` (e.g. `C:\Users\yourname\Videos`). Lock files, status files, and debug logs are stored separately in `%LOCALAPPDATA%\ManidocMCP`.
 
 ---
 
@@ -404,7 +528,7 @@ Placing `Assets\robot_sprite.png` next to `ManidocMCP.exe` enables a character a
 | Spec | Details |
 | --- | --- |
 | File name | `robot_sprite.png` (fixed) |
-| Location | `Assets\` folder next to `ManidocMCP.exe` |
+| Location | `Assets` folder next to `ManidocMCP.exe` |
 | Format | PNG |
 | Layout | Sprite sheet: 3 columns × 3 rows = 9 frames |
 | Frame size | 459 × 256 px per frame |
