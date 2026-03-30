@@ -9,3 +9,5 @@ out/
 *.log
 .video.lock
 .video.status.json
+CLAUDE.md
+作業メモ.md
