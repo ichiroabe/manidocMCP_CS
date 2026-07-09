@@ -71,6 +71,8 @@ Claude Desktop などのMCP対応AIクライアントと連携することで、
 - デフォルトのインストール先: `C:\Program Files\ManidocMCP\`
 - .NET 8 ランタイム未インストールの場合は警告が表示されます
 
+> **SmartScreen の警告について：** インストーラー実行時に「Windows によって PC が保護されました」と表示された場合は、「詳細情報」をクリックし「実行」を選択してください。コード署名証明書を使用していないため表示されますが、動作に問題はありません。
+
 #### 2. Claude Desktop の設定
 
 Claude Desktop の設定ファイル（`claude_desktop_config.json`）にサーバーを登録します。
@@ -359,6 +361,8 @@ Run `ManidocMCP_Setup_x.x.x.exe` and follow the wizard.
 
 - Default install location: `C:\Program Files\ManidocMCP\`
 - A warning will appear if .NET 8 Runtime is not installed
+
+> **SmartScreen warning:** If you see "Windows protected your PC" when running the installer, click "More info" and then "Run anyway". This message appears because the installer is not code-signed, but the application is safe to use.
 
 #### 2. Configure Claude Desktop
 
