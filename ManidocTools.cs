@@ -74,7 +74,7 @@ public class ManidocTools
             ?? throw new InvalidOperationException("Project not found");
         var node = WorkspaceService.FindNode(project.RootNodes ?? [], node_id)
             ?? throw new InvalidOperationException("Node not found");
-        node.Article = content;
+        node.Article = MarkdownNormalizer.NormalizeTables(content);
         WorkspaceService.SaveProject(project);
         return $"Saved: {project.Name} / {node.Title}";
     }
@@ -111,7 +111,7 @@ public class ManidocTools
             ?? throw new InvalidOperationException($"Node \"{node_title}\" not found");
         var node = WorkspaceService.FindNode(project.RootNodes ?? [], matched.Id)
             ?? throw new InvalidOperationException("Node not found");
-        node.Article = content;
+        node.Article = MarkdownNormalizer.NormalizeTables(content);
         WorkspaceService.SaveProject(project);
         return $"Saved: {project.Name} / {node.Title}";
     }
@@ -123,6 +123,7 @@ public class ManidocTools
     {
         var wp = WorkspaceService.GetWorkspacePath();
         var project = MarkdownImporter.Import(markdown_text, wp);
+        MarkdownNormalizer.NormalizeTree(project.RootNodes);
         WorkspaceService.SaveNewProject(project);
         int nodeCount = WorkspaceService.CountNodes(project.RootNodes);
         return $"Imported successfully.\nProject: {project.Name}\nID: {project.Id}\nNodes: {nodeCount}";
